@@ -24,6 +24,7 @@ namespace CopyCuz
 {
     public static class Extensions
     {
+        #region [For .NET 4.8 and lower]
         static readonly WeakReference s_random = new WeakReference(null);
         public static Random Rnd
         {
@@ -37,6 +38,7 @@ namespace CopyCuz
                 return r;
             }
         }
+        #endregion
 
         #region [Logger with automatic duplicate checking]
         static HashSet<string> _logCache = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -90,7 +92,6 @@ namespace CopyCuz
 
             return Regex.IsMatch(fileName, regexPattern, RegexOptions.IgnoreCase);
         }
-
 
         /// <summary>
         /// Scales all numeric values in a path geometry string by the given factor.
@@ -2405,7 +2406,6 @@ namespace CopyCuz
                 }
             }
         }
-
     }
 
     /// <summary>

@@ -5,6 +5,9 @@ using System.Windows.Media;
 
 namespace CopyCuz.Controls
 {
+    /// <summary>
+    /// A bloom effect decorator for <see cref="DrawingContext"/>.
+    /// </summary>
     public class GlowDecorator : Decorator
     {
         #region [Dependency Properties]

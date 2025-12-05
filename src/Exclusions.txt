@@ -1,4 +1,1 @@
-ICS-EMV-SampleApp.exe
-ICS-EMV-SampleApp.exe.config
-ICS-EMV-SampleApp.pdb
 Logs.txt
