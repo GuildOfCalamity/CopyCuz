@@ -280,7 +280,9 @@ namespace CopyCuz
         #region [Configs]
         bool _firstRun = true;
         bool _topMost = false;
+        bool _isClosing = false;
         bool _runOnStartup = false;
+        bool _hideOnDeactivate = false;
         double _windowLeft = 0;
         double _windowTop = 0;
         string _folderFrom1 = string.Empty;
@@ -334,9 +336,27 @@ namespace CopyCuz
         }
 
         #region [Events]
-        void ComboWindow_Activated(object sender, EventArgs e) => IsAnimated = true;
+        void ComboWindow_Activated(object sender, EventArgs e)
+        {
+            IsAnimated = true;
+            if (_hideOnDeactivate)
+            {
+                this.Show();
+                this.WindowState = WindowState.Normal;
+                this.Activate();
+                this.Focus();
+            }
+        }
 
-        void ComboWindow_Deactivated(object sender, EventArgs e) => IsAnimated = false;
+        void ComboWindow_Deactivated(object sender, EventArgs e)
+        {
+            IsAnimated = false;
+            if (_hideOnDeactivate)
+            {
+                this.Hide();
+                //this.WindowState = WindowState.Minimized;
+            }
+        }
 
         void ComboWindow_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -460,6 +480,8 @@ namespace CopyCuz
                 if ((e as System.Windows.Forms.MouseEventArgs).Button == System.Windows.Forms.MouseButtons.Left)
                 {
                     //Application.Current.MainWindow.WindowState = WindowState.Minimized;
+                    this.Show();
+                    this.WindowState = WindowState.Normal;
                     this.Activate();
                     this.Focus();
                 }
@@ -528,6 +550,7 @@ namespace CopyCuz
             _topMost = ConfigManager.Get("WindowOnTop", defaultValue: false);
             _firstRun = ConfigManager.Get("FirstRun", defaultValue: true);
             _runOnStartup = ConfigManager.Get("RunOnStartup", defaultValue: false);
+            _hideOnDeactivate = ConfigManager.Get("HideOnDeactivate", defaultValue: false);
             _windowLeft = ConfigManager.Get("WindowLeft", defaultValue: 250D);
             _windowTop = ConfigManager.Get("WindowTop", defaultValue: 200D);
             _folderFrom1 = ConfigManager.Get("FolderFrom1", defaultValue: string.Empty);
@@ -570,6 +593,7 @@ namespace CopyCuz
 
         void ComboWindow_Closing(object sender, CancelEventArgs e)
         {
+            _isClosing = true;
             #region [Save Configs]
             ConfigManager.Set("FolderFrom1", value: tbFrom1.Text);
             ConfigManager.Set("FolderTo1", value: tbTo1.Text);
@@ -585,6 +609,7 @@ namespace CopyCuz
             ConfigManager.Set("Header4", value: Header4);
             ConfigManager.Set("LastUse", value: DateTime.Now);
             ConfigManager.Set("FirstRun", value: false);
+            ConfigManager.Set("HideOnDeactivate", value: _hideOnDeactivate);
             ConfigManager.Set("WindowOnTop", value: _topMost);
             ConfigManager.Set("WindowLeft", value: this.Left.IsInvalid() ? 250D : this.Left);
             ConfigManager.Set("WindowTop", value: this.Top.IsInvalid() ? 200D : this.Top);
@@ -713,6 +738,8 @@ namespace CopyCuz
                         // These operations now run safely in the background
                         foreach (var p in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
                         {
+                            if (_isClosing)
+                                break;
                             Directory.CreateDirectory(System.IO.Path.Combine(destination, p.Substring(source.Length)));
                         }
 
@@ -720,6 +747,8 @@ namespace CopyCuz
                         IEnumerable<string> filesToCount = Directory.GetFiles(source, "*", SearchOption.AllDirectories).Where(fileName => !IsExcluded(System.IO.Path.GetFileName(fileName), _exList));
                         foreach (string fn in filesToCount)
                         {
+                            if (_isClosing)
+                                break;
                             estCount++;
                         }
 
@@ -727,6 +756,8 @@ namespace CopyCuz
                         IEnumerable<string> filesToProcess = Directory.GetFiles(source, "*", SearchOption.AllDirectories).Where(fileName => !IsExcluded(System.IO.Path.GetFileName(fileName), _exList));
                         foreach (string fn in filesToProcess)
                         {
+                            if (_isClosing)
+                                break;
                             try
                             {
                                 System.IO.File.Copy(fn, System.IO.Path.Combine(destination, fn.Substring(source.Length)), true);
@@ -774,15 +805,21 @@ namespace CopyCuz
 
                 foreach (var p in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
                 {
+                    if (_isClosing)
+                        break;
                     Directory.CreateDirectory(System.IO.Path.Combine(destination, p.Substring(source.Length)));
                 }
                 // A little inefficient, but we need to know how much to copy vs what was copied.
                 foreach (var f in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
                 {
+                    if (_isClosing)
+                        break;
                     estCount++;
                 }
                 foreach (var f in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
                 {
+                    if (_isClosing)
+                        break;
                     System.IO.File.Copy(f, System.IO.Path.Combine(destination, f.Substring(source.Length)), true);
                     cpyCount++;
                 }
