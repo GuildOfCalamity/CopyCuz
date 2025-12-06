@@ -21,7 +21,7 @@ namespace CopyCuz
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     /// <remarks>
-    //  We must include INotifyPropertyChanged as an inheritance for the class, or OnPropertyChanged() calls will not work.
+    ///  We must include <see cref="INotifyPropertyChanged"/> as an inheritance for the class, or OnPropertyChanged() calls will not work.
     /// </remarks>
     public partial class MainWindow : Window, INotifyPropertyChanged 
     {
@@ -313,6 +313,7 @@ namespace CopyCuz
                 notifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
                 notifyIcon.ContextMenuStrip.Items.Add("Repeat last copy", CopyCuz.Properties.Resources.repeat, OnRepeatClicked); // MENU1
                 notifyIcon.ContextMenuStrip.Items.Add("Stay on top", CopyCuz.Properties.Resources.x, OnTopmostClicked);       // MENU2
+                notifyIcon.ContextMenuStrip.Items.Add("Hide on deactivate", CopyCuz.Properties.Resources.x, OnHideClicked);       // MENU2
                 notifyIcon.ContextMenuStrip.Items.Add("Exit application", CopyCuz.Properties.Resources.exit, OnExitClicked);  // MENU3
                 notifyIcon.Visible = true;
                 notifyIcon.Text = "CopyCuz";
@@ -538,6 +539,24 @@ namespace CopyCuz
             }
 
             ConfigManager.Set("WindowOnTop", value: this.Topmost);
+        }
+
+        void OnHideClicked(object sender, EventArgs e)
+        {
+            if (_hideOnDeactivate)
+            {
+                _hideOnDeactivate = false;
+                // swap icon image
+                notifyIcon.ContextMenuStrip.Items[MENU3].Image = CopyCuz.Properties.Resources.x;
+            }
+            else
+            {
+                _hideOnDeactivate = true;
+                // swap icon image
+                notifyIcon.ContextMenuStrip.Items[MENU3].Image = CopyCuz.Properties.Resources.check;
+            }
+
+            ConfigManager.Set("HideOnDeactivate", value: _hideOnDeactivate);
         }
 
         void OnExitClicked(object sender, EventArgs e) => System.Windows.Application.Current.Shutdown();
