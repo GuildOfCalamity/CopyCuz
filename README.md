@@ -18,7 +18,7 @@
 	+ The exclusion list supports `*` and `?` wildcards.
 - This project includes my home-brew [spinner](https://github.com/GuildOfCalamity/SpinnerDemo) control for the background animations, including the indeterminate progress bar.
 
-![Screenshot](./src/Screenshot1.png)
+![Demo](./src/Demo.gif)
 
 ![Screenshot](./src/Screenshot2.png)
 
